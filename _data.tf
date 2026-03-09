@@ -3,7 +3,8 @@ data "aws_caller_identity" "current" {}
 
 # Use the aws_ssm_parameter data source to get the latest AL2 AMI ID
 data "aws_ssm_parameter" "amazon_linux_2" {
-  name = var.al2_ami_ssm_parameter_name
+  count = var.ami_id == null ? 1 : 0
+  name  = var.al2_ami_ssm_parameter_name
 }
 
 data "aws_autoscaling_groups" "groups" {

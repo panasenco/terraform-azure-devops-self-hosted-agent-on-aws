@@ -51,6 +51,12 @@ variable "al2_ami_ssm_parameter_name" {
   default     = "/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2"
 }
 
+variable "ami_id" {
+  description = "Specific AMI ID to use for agent instances. When set, the SSM parameter lookup for Amazon Linux 2 is skipped. Useful for organizations that maintain their own golden images."
+  type        = string
+  default     = null
+}
+
 variable "ebs_volume_size" {
   description = "Size in GB for the root EBS volume of the agent instances."
   type        = number
