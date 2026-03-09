@@ -60,6 +60,7 @@ module "azure_devops_agent" {
   # Instance Configuration 
   #--------------------------------------------------------------
   instance_type        = "t3.medium" # Must be x64 compatible
+  # ami_id             = "ami-0123456789abcdef0" # Optional: override the default Amazon Linux 2 AMI
   
   #--------------------------------------------------------------
   # Auto Scaling Group Configuration
@@ -202,6 +203,7 @@ When users are added to the docker group, they need to log out and back in for t
 | `azuredevops_url`          | Azure DevOps organization URL.                                                                                                         | `string`      | -           |   yes    |
 | `azuredevops_token`        | Azure DevOps PAT with Agent Pools (Read & manage) scope.                                                                               | `string`      | -           |   yes    |
 | `azuredevops_pool`         | Azure DevOps agent pool name.                                                                                                          | `string`      | -           |   yes    |
+| `ami_id`                   | Custom AMI ID for the agent instances. If not provided, the latest Amazon Linux 2 x64 AMI is used via SSM parameter lookup.            | `string`      | `null`      |    no    |
 | `instance_type`            | EC2 instance type (must be compatible with x64 architecture).                                                                          | `string`      | `"t3.small"`|    no    |
 | `ebs_volume_size`        | Size (GB) for the root EBS volume.                                                                                                     | `number`      | `32`        |    no    |
 | `ebs_volume_type`        | Type of EBS volume for the agent instances. Common types are 'gp2', 'gp3', 'io1', 'io2', 'st1', 'sc1'.                                | `string`      | `"gp3"`     |    no    |
