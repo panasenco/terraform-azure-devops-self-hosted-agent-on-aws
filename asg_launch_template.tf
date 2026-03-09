@@ -1,7 +1,7 @@
 resource "aws_launch_template" "agent_lt" {
   name_prefix   = "${var.name}-agent-lt-"
   description   = "Launch template for Azure DevOps agent instances in ${var.cluster_name}"
-  image_id      = coalesce(var.ami_id, data.aws_ssm_parameter.amazon_linux_2[0].value)
+  image_id      = coalesce(var.ami_id, try(data.aws_ssm_parameter.amazon_linux_2[0].value, null))
   instance_type = var.instance_type
 
   # Conditionally set the key_name based on the SSH access configuration
