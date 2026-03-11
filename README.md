@@ -91,6 +91,11 @@ module "azure_devops_agent" {
   docker_security_acknowledgment = "I understand the security implications" # Required when install_docker is true
   
   #--------------------------------------------------------------
+  # IAM Configuration (Optional)
+  #--------------------------------------------------------------
+  # permissions_boundary_arn = "arn:aws:iam::123456789012:policy/MyBoundaryPolicy" # Required in some orgs
+
+  #--------------------------------------------------------------
   # Additional Configuration
   #--------------------------------------------------------------
   attach_security_group_ids = [] # List of additional Security Group IDs to attach
@@ -219,6 +224,7 @@ When users are added to the docker group, they need to log out and back in for t
 | `docker_security_acknowledgment` | Set to 'I understand the security implications' to acknowledge that users in the docker group effectively have root privileges.   | `string`      | `null`      |    no    |
 | `metadata_http_put_response_hop_limit` | The desired HTTP PUT response hop limit for instance metadata requests. The larger the number, the further instance metadata requests can travel. Default is 1 (most secure). For Docker containers to access instance metadata, a minimum of 2 is required. For docker-in-docker scenarios, 3 or higher might be needed. | `number`      | `1`         |    no    |
 | `azure_devops_agent_version` | Azure DevOps agent version (e.g., '4.254.0').                                                                                        | `string`      | `"4.254.0"` |    no    |
+| `permissions_boundary_arn` | ARN of an IAM permissions boundary policy to attach to the agent IAM role. Required in organizations that enforce permission boundaries. | `string`      | `null`      |    no    |
 | `attach_security_group_ids`| List of additional Security Group IDs to attach.                                                                                       | `list(string)`| `[]`        |    no    |
 | `tags`                     | Map of additional tags for resources.                                                                                                  | `map(string)` | `{}`        |    no    |
 | `enable_ssh_access`        | Whether to enable SSH access to the agent instances.                                                                                   | `bool`        | `false`     |    no    |

@@ -1,6 +1,7 @@
 resource "aws_iam_role" "agent_role" {
-  name = "${var.name}-agent-role-${data.aws_region.current.name}"
-  path = "/"
+  name                 = "${var.name}-agent-role-${data.aws_region.current.name}"
+  path                 = "/"
+  permissions_boundary = var.permissions_boundary_arn
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17",

@@ -185,6 +185,12 @@ variable "attach_security_group_ids" {
   default     = []
 }
 
+variable "permissions_boundary_arn" {
+  description = "ARN of the IAM permissions boundary policy to attach to created roles. Required in accounts that enforce permissions boundaries."
+  type        = string
+  default     = null
+}
+
 variable "tags" {
   description = "A map of additional tags to assign to the created resources."
   type        = map(string)
