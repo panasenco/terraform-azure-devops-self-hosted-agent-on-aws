@@ -191,6 +191,27 @@ When enabling Docker, you must explicitly acknowledge the security implications 
 
 When users are added to the docker group, they need to log out and back in for the changes to take effect. In the context of the Azure DevOps agent service, this may require a restart of the instance or the agent service. The `docker_restart_instance` option can be set to `true` to automatically schedule a restart after Docker installation.
 
+## Extra User Data (Optional)
+
+You can run additional shell commands at the end of the instance bootstrap script using the `extra_userdata` variable. This is useful for installing tools that your pipelines need (e.g., Terraform, Python, custom CLIs) without modifying the module itself.
+
+```hcl
+module "azure_devops_agent" {
+  # ... other configuration ...
+
+  extra_userdata = <<-EOF
+    # Install Terraform
+    TERRAFORM_VERSION="1.10.5"
+    curl -fsSL "https://releases.hashicorp.com/terraform/$${TERRAFORM_VERSION}/terraform_$${TERRAFORM_VERSION}_linux_amd64.zip" -o /tmp/terraform.zip
+    unzip -o /tmp/terraform.zip -d /usr/local/bin/
+    rm /tmp/terraform.zip
+    terraform --version
+  EOF
+}
+```
+
+The script runs as root during instance boot, after the ADO agent and CloudWatch agent are fully configured. Output is captured in `/var/log/user-data.log` alongside the rest of the bootstrap log.
+
 ## Monitoring
 
 -   **Agent Logs:** View agent diagnostic logs in CloudWatch Logs under the log group `/azure-devops-agent/<cluster_name>/<name>/agent-diag`.
@@ -224,6 +245,7 @@ When users are added to the docker group, they need to log out and back in for t
 | `docker_security_acknowledgment` | Set to 'I understand the security implications' to acknowledge that users in the docker group effectively have root privileges.   | `string`      | `null`      |    no    |
 | `metadata_http_put_response_hop_limit` | The desired HTTP PUT response hop limit for instance metadata requests. The larger the number, the further instance metadata requests can travel. Default is 1 (most secure). For Docker containers to access instance metadata, a minimum of 2 is required. For docker-in-docker scenarios, 3 or higher might be needed. | `number`      | `1`         |    no    |
 | `azure_devops_agent_version` | Azure DevOps agent version (e.g., '4.254.0').                                                                                        | `string`      | `"4.254.0"` |    no    |
+| `extra_userdata`             | Additional shell script commands to run at the end of the user data script, after agent and CloudWatch setup.                          | `string`      | `""`         |    no    |
 | `permissions_boundary_arn` | ARN of an IAM permissions boundary policy to attach to the agent IAM role. Required in organizations that enforce permission boundaries. | `string`      | `null`      |    no    |
 | `attach_security_group_ids`| List of additional Security Group IDs to attach.                                                                                       | `list(string)`| `[]`        |    no    |
 | `tags`                     | Map of additional tags for resources.                                                                                                  | `map(string)` | `{}`        |    no    |

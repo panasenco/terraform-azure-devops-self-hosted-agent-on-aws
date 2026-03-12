@@ -197,6 +197,12 @@ variable "tags" {
   default     = {}
 }
 
+variable "extra_userdata" {
+  description = "Additional shell script commands to run at the end of the user data script, after agent and CloudWatch setup. Use this to install extra tools (e.g., Terraform, Python) on the agent instances."
+  type        = string
+  default     = ""
+}
+
 variable "enable_ssh_access" {
   description = "Whether to enable SSH access to the agent instances."
   type        = bool

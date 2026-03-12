@@ -48,6 +48,7 @@ resource "aws_launch_template" "agent_lt" {
     docker_user_groups         = var.docker_user_groups,
     docker_restart_instance    = var.docker_restart_instance,
     docker_security_acknowledgment = var.docker_security_acknowledgment
+    extra_userdata                 = var.extra_userdata
   }))
 
   tags = merge(var.tags, {

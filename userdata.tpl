@@ -189,4 +189,11 @@ sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-c
 sudo systemctl enable amazon-cloudwatch-agent
 sudo systemctl start amazon-cloudwatch-agent
 
+# --- Extra User Data (optional) ---
+%{ if extra_userdata != "" ~}
+echo "Running extra user data script..."
+${extra_userdata}
+echo "Extra user data script completed."
+%{ endif ~}
+
 echo "Setup completed successfully!"
