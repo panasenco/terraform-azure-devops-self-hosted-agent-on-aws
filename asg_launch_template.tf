@@ -94,13 +94,6 @@ resource "aws_autoscaling_group" "agent_asg" {
     version = "$Latest"
   }
 
-  initial_lifecycle_hook {
-    name                 = "wait-for-user-data"
-    lifecycle_transition = "autoscaling:EC2_INSTANCE_LAUNCHING"
-    default_result       = "ABANDON"
-    heartbeat_timeout    = 900 # 15 minutes — instance is terminated if user data doesn't complete in time
-  }
-
   dynamic "tag" {
     for_each = merge(var.tags, {
       Name         = "${var.name}-agent-${var.cluster_name}",
@@ -118,4 +111,12 @@ resource "aws_autoscaling_group" "agent_asg" {
     create_before_destroy = true
     ignore_changes        = [desired_capacity]
   }
+}
+
+resource "aws_autoscaling_lifecycle_hook" "wait_for_user_data" {
+  name                   = "wait-for-user-data"
+  autoscaling_group_name = aws_autoscaling_group.agent_asg.name
+  lifecycle_transition   = "autoscaling:EC2_INSTANCE_LAUNCHING"
+  default_result         = "ABANDON"
+  heartbeat_timeout      = 900 # 15 minutes — instance is terminated if user data doesn't complete in time
 }
