@@ -212,6 +212,27 @@ module "azure_devops_agent" {
 
 The script runs as root during instance boot, after the ADO agent and CloudWatch agent are fully configured. Output is captured in `/var/log/user-data.log` alongside the rest of the bootstrap log.
 
+## Zero-Downtime Instance Refresh
+
+The module includes an ASG lifecycle hook (`wait-for-user-data`) that enables zero-downtime instance replacement. When you trigger an instance refresh with `MinHealthyPercentage: 100`:
+
+1. The ASG launches a new instance with the updated launch template
+2. The new instance stays in `Pending:Wait` state while user data runs
+3. After the ADO agent, CloudWatch, and any extra user data complete, the instance signals `CONTINUE`
+4. The ASG marks the instance as `InService` and terminates the old one
+
+If user data fails or takes longer than 15 minutes, the lifecycle hook times out with `ABANDON` and the instance is terminated — the old instance stays running.
+
+**Trigger a zero-downtime refresh:**
+
+```bash
+aws autoscaling start-instance-refresh \
+  --auto-scaling-group-name <asg-name> \
+  --preferences '{"MinHealthyPercentage": 100}'
+```
+
+> **Note:** `asg_max_size` must be at least 2 for the ASG to launch the new instance alongside the old one.
+
 ## Monitoring
 
 -   **Agent Logs:** View agent diagnostic logs in CloudWatch Logs under the log group `/azure-devops-agent/<cluster_name>/<name>/agent-diag`.

@@ -49,6 +49,7 @@ resource "aws_launch_template" "agent_lt" {
     docker_restart_instance    = var.docker_restart_instance,
     docker_security_acknowledgment = var.docker_security_acknowledgment
     extra_userdata                 = var.extra_userdata
+    asg_name                       = "${var.name}-agent-asg-${var.cluster_name}"
   }))
 
   tags = merge(var.tags, {
@@ -91,6 +92,13 @@ resource "aws_autoscaling_group" "agent_asg" {
   launch_template {
     id      = aws_launch_template.agent_lt.id
     version = "$Latest"
+  }
+
+  initial_lifecycle_hook {
+    name                 = "wait-for-user-data"
+    lifecycle_transition = "autoscaling:EC2_INSTANCE_LAUNCHING"
+    default_result       = "ABANDON"
+    heartbeat_timeout    = 900 # 15 minutes — instance is terminated if user data doesn't complete in time
   }
 
   dynamic "tag" {

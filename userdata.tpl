@@ -174,10 +174,10 @@ sudo tee /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json <<EOF
       }
     },
     "append_dimensions": {
-      "AutoScalingGroupName": "$${aws:AutoScalingGroupName}",
-      "ImageId": "$${aws:ImageId}",
-      "InstanceId": "$${aws:InstanceId}",
-      "InstanceType": "$${aws:InstanceType}"
+      "AutoScalingGroupName": "\$${aws:AutoScalingGroupName}",
+      "ImageId": "\$${aws:ImageId}",
+      "InstanceId": "\$${aws:InstanceId}",
+      "InstanceType": "\$${aws:InstanceType}"
     }
   }
 }
@@ -195,5 +195,21 @@ echo "Running extra user data script..."
 ${extra_userdata}
 echo "Extra user data script completed."
 %{ endif ~}
+
+# --- Signal ASG Lifecycle Hook ---
+# Tell the ASG this instance is ready to serve traffic.
+# This allows instance refresh to proceed with terminating the old instance.
+echo "Signaling ASG lifecycle hook completion..."
+TOKEN=$(curl -s -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 30")
+INSTANCE_ID=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/instance-id)
+REGION=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/placement/region)
+
+aws autoscaling complete-lifecycle-action \
+  --lifecycle-hook-name "wait-for-user-data" \
+  --auto-scaling-group-name "${asg_name}" \
+  --lifecycle-action-result CONTINUE \
+  --instance-id "$INSTANCE_ID" \
+  --region "$REGION" \
+  || echo "WARNING: Failed to signal lifecycle hook (may not be in a lifecycle transition)"
 
 echo "Setup completed successfully!"
