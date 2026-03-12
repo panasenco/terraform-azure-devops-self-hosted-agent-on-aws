@@ -228,10 +228,10 @@ If user data fails or takes longer than 15 minutes, the lifecycle hook times out
 ```bash
 aws autoscaling start-instance-refresh \
   --auto-scaling-group-name <asg-name> \
-  --preferences '{"MinHealthyPercentage": 100}'
+  --preferences '{"MinHealthyPercentage": 100, "MaxHealthyPercentage": 200, "InstanceWarmup": 60}'
 ```
 
-> **Note:** `asg_max_size` must be at least 2 for the ASG to launch the new instance alongside the old one.
+> **Note:** `asg_max_size` must be at least double `asg_desired_size` so the ASG can temporarily run both old and new instances during the refresh. `MaxHealthyPercentage: 200` allows the ASG to scale to twice the desired capacity — without it, the ASG will terminate the old instance before launching the new one.
 
 ## Monitoring
 

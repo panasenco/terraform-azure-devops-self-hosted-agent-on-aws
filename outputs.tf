@@ -23,6 +23,11 @@ output "agent_iam_role_arn" {
   value       = aws_iam_role.agent_role.arn
 }
 
+output "agent_iam_role_name" {
+  description = "The name of the IAM role assigned to the agent instances."
+  value       = aws_iam_role.agent_role.name
+}
+
 output "agent_instance_profile_arn" {
   description = "The ARN of the IAM instance profile assigned to the agent instances."
   value       = aws_iam_instance_profile.agent_profile.arn
